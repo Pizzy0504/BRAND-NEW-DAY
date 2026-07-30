@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Date Night: Spider-Man Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#0a0a0c;
+    --bg-charcoal:#141417;
+    --bg-panel:#1b1b20;
+    --spider-red:#e62429;
+    --spider-red-deep:#8f1215;
+    --web-blue:#2ad6ff;
+    --web-blue-dim:#0d7fa3;
+    --paper:#f2efe9;
+    --ink:#c9c9d1;
+    --ink-dim:#7a7a85;
+    --line:rgba(255,255,255,0.08);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--bg-void);
+    color:var(--paper);
+    font-family:'Space Grotesk', sans-serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Anton', sans-serif;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    line-height:1.05;
+  }
+
+  a{color:inherit; text-decoration:none;}
+
+  ::selection{background:var(--spider-red); color:#fff;}
+
+  /* ---------- Web corner overlays ---------- */
+  .web-corner{
+    position:fixed;
+    width:min(38vw, 420px);
+    height:min(38vw, 420px);
+    pointer-events:none;
+    z-index:0;
+    opacity:0.16;
+  }
+  .web-corner.tl{ top:-40px; left:-40px; }
+  .web-corner.br{ bottom:-40px; right:-40px; transform:rotate(180deg); }
+  .web-corner svg{width:100%;height:100%;}
+  .web-corner path, .web-corner circle{
+    fill:none;
+    stroke:var(--web-blue);
+    stroke-width:1;
+  }
+
+  /* ---------- Focus visibility ---------- */
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--web-blue);
+    outline-offset:3px;
+  }
+
+  /* ================= HERO ================= */
+  .hero{
+    position:relative;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px 20px;
+    isolation:isolate;
+    overflow:hidden;
+  }
+
+  .hero-bg{
+    position:absolute;
+    inset:0;
+    z-index:-2;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(230,36,41,0.35), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(42,214,255,0.18), transparent 60%),
+      linear-gradient(180deg, #0a0a0c 0%, #14090a 40%, #0a0a0c 100%);
+  }
+
+  .hero-bg::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 6px);
+    mix-blend-mode:overlay;
+  }
+
+  .hero-skyline{
+    position:absolute;
+    bottom:0; left:0; right:0;
+    z-index:-1;
+    opacity:0.9;
+    pointer-events:none;
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:0.72rem;
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    color:var(--web-blue);
+    margin-bottom:22px;
+    opacity:0;
+    animation:fadeUp 0.8s ease forwards 0.15s;
+  }
+  .eyebrow::before{
+    content:"";
+    width:26px; height:1px;
+    background:var(--web-blue);
+    box-shadow:0 0 8px var(--web-blue);
+  }
+
+  .hero h1{
+    font-size:clamp(2.4rem, 7vw, 5.6rem);
+    color:var(--paper);
+    text-shadow:0 0 40px rgba(230,36,41,0.35);
+    opacity:0;
+    animation:fadeUp 0.9s ease forwards 0.3s;
+  }
+  .hero h1 .accent{
+    color:var(--spider-red);
+    -webkit-text-stroke:1px rgba(255,255,255,0.15);
+  }
+
+  .hero p.subtitle{
+    margin-top:18px;
+    font-size:clamp(1rem, 2vw, 1.25rem);
+    color:var(--ink);
+    max-width:520px;
+    opacity:0;
+    animation:fadeUp 0.9s ease forwards 0.5s;
+  }
+
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(18px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  /* Countdown */
+  .countdown{
+    margin-top:48px;
+    display:flex;
+    gap:14px;
+    opacity:0;
+    animation:fadeUp 0.9s ease forwards 0.7s;
+  }
+  .countdown .unit{
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--line);
+    backdrop-filter:blur(14px);
+    border-radius:14px;
+    padding:16px 18px;
+    min-width:76px;
+    position:relative;
+    overflow:hidden;
+  }
+  .countdown .unit::before{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(42,214,255,0.08), transparent 60%);
+  }
+  .countdown .num{
+    display:block;
+    font-family:'Anton', sans-serif;
+    font-size:clamp(1.6rem, 4vw, 2.4rem);
+    color:var(--web-blue);
+    text-shadow:0 0 18px rgba(42,214,255,0.5);
+    font-variant-numeric:tabular-nums;
+  }
+  .countdown .label{
+    display:block;
+    font-size:0.62rem;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin-top:4px;
+  }
+
+  .scroll-cue{
+    position:absolute;
+    bottom:28px;
+    font-size:0.7rem;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .scroll-cue span.line{
+    width:1px; height:34px;
+    background:linear-gradient(var(--web-blue), transparent);
+    animation:pulseLine 1.8s ease-in-out infinite;
+  }
+  @keyframes pulseLine{
+    0%,100%{opacity:0.3;}
+    50%{opacity:1;}
+  }
+
+  /* ================= SECTION SHELL ================= */
+  section{
+    position:relative;
+    max-width:1080px;
+    margin:0 auto;
+    padding:110px 24px;
+    z-index:1;
+  }
+
+  .section-head{
+    text-align:center;
+    margin-bottom:56px;
+  }
+  .section-head .kicker{
+    font-size:0.72rem;
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    color:var(--spider-red);
+    margin-bottom:10px;
+    display:block;
+  }
+  .section-head h2{
+    font-size:clamp(1.8rem, 4.5vw, 3rem);
+  }
+
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  /* ================= EVENT CARD ================= */
+  .event-grid{
+    display:grid;
+    grid-template-columns:0.9fr 1.1fr;
+    gap:0;
+    border-radius:24px;
+    overflow:hidden;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--line);
+    backdrop-filter:blur(18px);
+  }
+  @media (max-width:760px){
+    .event-grid{grid-template-columns:1fr;}
+  }
+
+  /* Poster card - original illustration, tilt-hover */
+  .poster-wrap{
+    perspective:1200px;
+    padding:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:radial-gradient(circle at 30% 20%, rgba(230,36,41,0.12), transparent 55%);
+  }
+  .poster-card{
+    width:100%;
+    max-width:320px;
+    aspect-ratio:2/3;
+    border-radius:18px;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform 0.35s cubic-bezier(.2,.8,.2,1), box-shadow 0.35s ease;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+    cursor:pointer;
+  }
+  .poster-card:hover, .poster-card:focus-visible{
+    box-shadow:0 40px 80px -20px rgba(230,36,41,0.35), 0 0 40px rgba(42,214,255,0.15), 0 0 0 1px rgba(255,255,255,0.1);
+  }
+  .poster-card svg{
+    width:100%; height:100%;
+    border-radius:18px;
+    display:block;
+  }
+  .poster-tag{
+    position:absolute;
+    bottom:14px; left:14px; right:14px;
+    background:rgba(10,10,12,0.55);
+    backdrop-filter:blur(6px);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    color:var(--ink);
+    border:1px solid rgba(255,255,255,0.08);
+  }
+  .poster-tag b{color:var(--web-blue); display:block; font-size:0.85rem; letter-spacing:0.03em;}
+
+  .event-details{
+    padding:48px 44px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:22px;
+  }
+  .event-details h3{
+    font-size:clamp(1.4rem, 3vw, 2rem);
+    color:var(--paper);
+  }
+  .event-details h3 .red{color:var(--spider-red);}
+
+  .detail-row{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    color:var(--ink);
+    font-size:0.98rem;
+  }
+  .detail-row .icon{
+    width:20px; flex-shrink:0;
+    color:var(--web-blue);
+    margin-top:2px;
+  }
+  .detail-row strong{color:var(--paper); font-weight:600;}
+
+  .directions-btn{
+    align-self:flex-start;
+    margin-top:10px;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 26px;
+    background:var(--spider-red);
+    color:#fff;
+    border-radius:999px;
+    font-weight:600;
+    font-size:0.9rem;
+    letter-spacing:0.02em;
+    box-shadow:0 12px 30px -10px rgba(230,36,41,0.6);
+    transition:transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .directions-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 18px 36px -10px rgba(230,36,41,0.8);
+    background:#ff3339;
+  }
+  .directions-btn svg{width:16px; height:16px;}
+
+  /* ================= TIMELINE ================= */
+  .timeline{
+    position:relative;
+    margin-top:20px;
+  }
+  .timeline::before{
+    content:"";
+    position:absolute;
+    left:20px;
+    top:6px; bottom:6px;
+    width:2px;
+    background:linear-gradient(var(--spider-red), var(--web-blue));
+    opacity:0.35;
+  }
+  @media(min-width:700px){
+    .timeline::before{left:50%; transform:translateX(-1px);}
+  }
+
+  .t-item{
+    position:relative;
+    padding-left:56px;
+    margin-bottom:44px;
+  }
+  @media(min-width:700px){
+    .t-item{
+      width:50%;
+      padding-left:0;
+      margin-bottom:60px;
+    }
+    .t-item:nth-child(odd){
+      padding-right:56px;
+      text-align:right;
+    }
+    .t-item:nth-child(even){
+      margin-left:50%;
+      padding-left:56px;
+    }
+  }
+
+  .t-dot{
+    position:absolute;
+    left:10px; top:2px;
+    width:22px; height:22px;
+    border-radius:50%;
+    background:var(--bg-charcoal);
+    border:2px solid var(--web-blue);
+    box-shadow:0 0 16px rgba(42,214,255,0.5);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .t-dot::after{
+    content:"";
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--web-blue);
+  }
+  @media(min-width:700px){
+    .t-item:nth-child(odd) .t-dot{ left:auto; right:-11px; }
+    .t-item:nth-child(even) .t-dot{ left:-11px; }
+  }
+
+  .t-card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 24px;
+    backdrop-filter:blur(14px);
+    transition:transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+  }
+  .t-card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(42,214,255,0.35);
+    background:rgba(255,255,255,0.05);
+  }
+  .t-time{
+    font-family:'Anton', sans-serif;
+    color:var(--spider-red);
+    font-size:1rem;
+    letter-spacing:0.05em;
+    display:block;
+    margin-bottom:6px;
+  }
+  .t-card p{color:var(--ink); font-size:0.95rem; line-height:1.5;}
+
+  /* ================= GALLERY ================= */
+  .gallery{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:28px;
+    margin-top:10px;
+  }
+  @media(max-width:700px){
+    .gallery{grid-template-columns:1fr; max-width:340px; margin-inline:auto;}
+  }
+
+  .polaroid{
+    background:var(--paper);
+    padding:14px 14px 54px 14px;
+    border-radius:4px;
+    box-shadow:0 20px 40px -14px rgba(0,0,0,0.6);
+    transition:transform 0.4s cubic-bezier(.2,.8,.2,1), box-shadow 0.4s ease;
+    position:relative;
+  }
+  .gallery > .polaroid:nth-child(1){ transform:rotate(-6deg); }
+  .gallery > .polaroid:nth-child(2){ transform:rotate(3deg) translateY(14px); }
+  .gallery > .polaroid:nth-child(3){ transform:rotate(-2deg); }
+  .polaroid:hover{
+    transform:rotate(0deg) translateY(-10px) scale(1.03);
+    box-shadow:0 30px 60px -16px rgba(230,36,41,0.35);
+    z-index:2;
+  }
+  .polaroid .frame{
+    width:100%;
+    aspect-ratio:1/1;
+    border-radius:2px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .polaroid .frame svg{width:100%; height:100%;}
+  .polaroid .cap{
+    position:absolute;
+    bottom:14px; left:14px; right:14px;
+    text-align:center;
+    color:#33313a;
+    font-size:0.82rem;
+    font-weight:600;
+    font-family:'Space Grotesk', sans-serif;
+  }
+
+  /* ================= THANK YOU ================= */
+  .thanks-box{
+    position:relative;
+    text-align:center;
+    max-width:720px;
+    margin:0 auto;
+    background:linear-gradient(180deg, rgba(230,36,41,0.06), rgba(42,214,255,0.04));
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:64px 40px;
+    backdrop-filter:blur(18px);
+    overflow:hidden;
+  }
+  .thanks-box::before{
+    content:"\201C";
+    position:absolute;
+    top:6px; left:28px;
+    font-family:'Anton', serif;
+    font-size:7rem;
+    color:var(--spider-red);
+    opacity:0.18;
+    line-height:1;
+  }
+  .thanks-kicker{
+    font-size:0.72rem;
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    color:var(--web-blue);
+    display:block;
+    margin-bottom:18px;
+  }
+  .thanks-box p{
+    font-size:clamp(1.05rem, 2.4vw, 1.35rem);
+    color:var(--paper);
+    line-height:1.7;
+    max-width:560px;
+    margin:0 auto;
+  }
+  .thanks-box p + p{
+    margin-top:18px;
+    color:var(--ink);
+    font-size:clamp(0.95rem, 2vw, 1.05rem);
+  }
+  .thanks-sign{
+    margin-top:32px;
+    font-family:'Anton', sans-serif;
+    letter-spacing:0.04em;
+    color:var(--spider-red);
+    font-size:1.1rem;
+  }
+  .thanks-sign span{
+    display:block;
+    font-family:'Space Grotesk', sans-serif;
+    color:var(--ink-dim);
+    font-size:0.7rem;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    margin-top:6px;
+  }
+
+  /* ================= RSVP ================= */
+  .rsvp-box{
+    text-align:center;
+    background:radial-gradient(circle at 50% 0%, rgba(230,36,41,0.15), transparent 60%), rgba(255,255,255,0.03);
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:64px 32px;
+    backdrop-filter:blur(18px);
+    position:relative;
+    overflow:hidden;
+  }
+  .rsvp-box h2{
+    font-size:clamp(1.6rem, 4vw, 2.4rem);
+    margin-bottom:16px;
+  }
+  .rsvp-box p{color:var(--ink); max-width:420px; margin:0 auto 40px auto;}
+
+  .rsvp-actions{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+    flex-wrap:wrap;
+    position:relative;
+    min-height:70px;
+  }
+
+  .btn-yes{
+    padding:16px 34px;
+    background:var(--spider-red);
+    color:#fff;
+    border:none;
+    border-radius:999px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:1rem;
+    cursor:pointer;
+    box-shadow:0 14px 32px -10px rgba(230,36,41,0.65);
+    transition:transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .btn-yes:hover{ transform:translateY(-3px) scale(1.03); box-shadow:0 20px 40px -10px rgba(230,36,41,0.85);}
+
+  .btn-no{
+    padding:16px 34px;
+    background:transparent;
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:999px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:1rem;
+    cursor:pointer;
+    position:relative;
+    transition:transform 0.18s ease, left 0.18s ease, top 0.18s ease;
+  }
+
+  .confirm-popup{
+    position:fixed;
+    left:50%; bottom:40px;
+    transform:translate(-50%, 20px);
+    background:var(--bg-panel);
+    border:1px solid rgba(42,214,255,0.4);
+    box-shadow:0 20px 50px -10px rgba(0,0,0,0.7), 0 0 30px rgba(42,214,255,0.15);
+    border-radius:16px;
+    padding:18px 26px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.35s ease, transform 0.35s ease;
+    z-index:100;
+    max-width:90vw;
+  }
+  .confirm-popup.show{
+    opacity:1;
+    transform:translate(-50%, 0);
+  }
+  .confirm-popup .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--web-blue);
+    box-shadow:0 0 10px var(--web-blue);
+    flex-shrink:0;
+  }
+  .confirm-popup span{color:var(--paper); font-size:0.92rem;}
+
+  /* ================= FOOTER ================= */
+  footer{
+    text-align:center;
+    padding:50px 24px 70px;
+    color:var(--ink-dim);
+    font-size:0.8rem;
+    letter-spacing:0.05em;
+    position:relative;
+    z-index:1;
+  }
+  footer .web-mini{
+    width:60px; margin:0 auto 18px auto;
+    opacity:0.5;
+  }
+
+  #confetti-canvas{
+    position:fixed;
+    inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:200;
+  }
+</style>
+</head>
+<body>
+
+<div class="web-corner tl" aria-hidden="true">
+  <svg viewBox="0 0 400 400">
+    <path d="M0,0 L400,400"/>
+    <path d="M0,0 L300,0 M0,0 L0,300"/>
+    <path d="M0,0 L220,10"/>
+    <path d="M0,0 L10,220"/>
+    <path d="M0,0 Q40,10 60,60 Q10,40 0,0"/>
+    <path d="M0,0 Q90,25 130,130 Q25,90 0,0"/>
+    <path d="M0,0 Q150,45 210,210 Q45,150 0,0"/>
+    <path d="M0,0 Q220,70 300,300 Q70,220 0,0"/>
+  </svg>
+</div>
+<div class="web-corner br" aria-hidden="true">
+  <svg viewBox="0 0 400 400">
+    <path d="M0,0 L400,400"/>
+    <path d="M0,0 L300,0 M0,0 L0,300"/>
+    <path d="M0,0 L220,10"/>
+    <path d="M0,0 L10,220"/>
+    <path d="M0,0 Q40,10 60,60 Q10,40 0,0"/>
+    <path d="M0,0 Q90,25 130,130 Q25,90 0,0"/>
+    <path d="M0,0 Q150,45 210,210 Q45,150 0,0"/>
+    <path d="M0,0 Q220,70 300,300 Q70,220 0,0"/>
+  </svg>
+</div>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <svg class="hero-skyline" viewBox="0 0 1440 260" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="skygrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1a0d0e"/>
+        <stop offset="100%" stop-color="#0a0a0c"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="120" width="70" height="140" fill="url(#skygrad)"/>
+    <rect x="80" y="80" width="50" height="180" fill="url(#skygrad)"/>
+    <rect x="140" y="150" width="90" height="110" fill="url(#skygrad)"/>
+    <rect x="250" y="60" width="60" height="200" fill="url(#skygrad)"/>
+    <rect x="330" y="110" width="40" height="150" fill="url(#skygrad)"/>
+    <rect x="390" y="40" width="70" height="220" fill="url(#skygrad)"/>
+    <rect x="480" y="130" width="100" height="130" fill="url(#skygrad)"/>
+    <rect x="600" y="90" width="55" height="170" fill="url(#skygrad)"/>
+    <rect x="670" y="20" width="80" height="240" fill="url(#skygrad)"/>
+    <rect x="770" y="140" width="60" height="120" fill="url(#skygrad)"/>
+    <rect x="850" y="70" width="45" height="190" fill="url(#skygrad)"/>
+    <rect x="910" y="110" width="90" height="150" fill="url(#skygrad)"/>
+    <rect x="1020" y="50" width="60" height="210" fill="url(#skygrad)"/>
+    <rect x="1100" y="130" width="70" height="130" fill="url(#skygrad)"/>
+    <rect x="1190" y="80" width="50" height="180" fill="url(#skygrad)"/>
+    <rect x="1260" y="150" width="100" height="110" fill="url(#skygrad)"/>
+    <rect x="1380" y="100" width="60" height="160" fill="url(#skygrad)"/>
+    <path d="M120,80 Q380,10 660,90 Q900,150 1180,60 Q1320,20 1440,110" fill="none" stroke="#2ad6ff" stroke-opacity="0.25" stroke-width="1.5"/>
+  </svg>
+
+  <span class="eyebrow">A Night Out, Just For Us</span>
+  <h1>Date Night: <span class="accent">Spider-Man</span> Edition 🕷️</h1>
+  <p class="subtitle">A special movie night planned just for you, Princess.</p>
+
+  <div class="countdown" id="countdown" role="timer" aria-live="polite" aria-label="Countdown to movie night">
+    <div class="unit"><span class="num" id="cd-days">00</span><span class="label">Days</span></div>
+    <div class="unit"><span class="num" id="cd-hours">00</span><span class="label">Hours</span></div>
+    <div class="unit"><span class="num" id="cd-mins">00</span><span class="label">Mins</span></div>
+    <div class="unit"><span class="num" id="cd-secs">00</span><span class="label">Secs</span></div>
+  </div>
+
+  <div class="scroll-cue"><span class="line"></span>Scroll</div>
+</header>
+
+<!-- ================= EVENT DETAILS ================= -->
+<section id="details">
+  <div class="section-head reveal">
+    <span class="kicker">The Plan</span>
+    <h2>Tonight's Screening</h2>
+  </div>
+
+  <div class="event-grid reveal">
+    <div class="poster-wrap">
+      <div class="poster-card" tabindex="0" id="posterCard">
+        <svg viewBox="0 0 320 480" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="posterSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1c0507"/>
+              <stop offset="55%" stop-color="#3a0b0d"/>
+              <stop offset="100%" stop-color="#0a0a0c"/>
+            </linearGradient>
+            <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#2ad6ff" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#2ad6ff" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="320" height="480" fill="url(#posterSky)"/>
+          <circle cx="245" cy="90" r="70" fill="url(#moonGlow)"/>
+          <circle cx="245" cy="90" r="26" fill="#eaf7ff" opacity="0.9"/>
+          <g opacity="0.5" stroke="#2ad6ff" stroke-width="1" fill="none">
+            <path d="M245,90 L340,0 M245,90 L150,0 M245,90 L245,-10"/>
+            <path d="M245,90 Q270,60 300,55 Q265,80 245,90"/>
+          </g>
+          <!-- city silhouette -->
+          <g fill="#050506">
+            <rect x="0" y="360" width="34" height="120"/>
+            <rect x="40" y="320" width="26" height="160"/>
+            <rect x="70" y="380" width="46" height="100"/>
+            <rect x="122" y="300" width="30" height="180"/>
+            <rect x="160" y="340" width="20" height="140"/>
+            <rect x="184" y="260" width="36" height="220"/>
+            <rect x="224" y="330" width="50" height="150"/>
+            <rect x="278" y="300" width="42" height="180"/>
+          </g>
+          <!-- web-slinger silhouette (original illustration) -->
+          <g fill="#050506">
+            <path d="M120,150 Q140,120 165,130 Q175,110 195,118 Q205,135 195,150 Q210,165 195,185 L175,240 L150,235 L140,190 Q120,175 120,150 Z"/>
+            <path d="M120,150 Q85,120 60,60" stroke="#2ad6ff" stroke-width="2.5" fill="none" opacity="0.7"/>
+            <circle cx="60" cy="60" r="4" fill="#2ad6ff"/>
+            <path d="M150,235 L120,300" stroke="#050506" stroke-width="10" stroke-linecap="round"/>
+            <path d="M175,240 L210,295" stroke="#050506" stroke-width="10" stroke-linecap="round"/>
+          </g>
+          <g fill="none" stroke="#e62429" stroke-width="6" stroke-linecap="round">
+            <path d="M158,132 Q168,150 158,166"/>
+            <path d="M168,128 Q180,150 170,168" opacity="0.7"/>
+          </g>
+          <rect x="0" y="0" width="320" height="480" fill="none" stroke="#e62429" stroke-opacity="0.25" stroke-width="6"/>
+        </svg>
+        <div class="poster-tag">
+          <b>Spider-Man : Brand New Day</b>
+          Now Showing &middot; 7:00 PM &middot; Suncoast Cinecentre
+        </div>
+      </div>
+    </div>
+
+    <div class="event-details">
+      <h3>Spider-Man : Brand New Day</h3>
+
+      <div class="detail-row">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </span>
+        <div><strong>7:00 PM</strong><br>Doors open 6:15 PM for snacks</div>
+      </div>
+
+      <div class="detail-row">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        </span>
+        <div><strong>Suncoast Cinecentre</strong><br>Durban, KwaZulu-Natal</div>
+      </div>
+
+      <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Suncoast+Cinecentre+Durban" target="_blank" rel="noopener">
+        Get Directions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ITINERARY ================= -->
+<section id="itinerary">
+  <div class="section-head reveal">
+    <span class="kicker">Run of Show</span>
+    <h2>Evening Itinerary</h2>
+  </div>
+
+  <div class="timeline">
+    <div class="t-item reveal">
+      <div class="t-dot"></div>
+      <div class="t-card">
+        <span class="t-time">6:15 PM</span>
+        <p>Pre-movie drinks &amp; popcorn pickup at Suncoast &mdash; find our seats and settle in.</p>
+      </div>
+    </div>
+    <div class="t-item reveal">
+      <div class="t-dot"></div>
+      <div class="t-card">
+        <span class="t-time">7:00 PM</span>
+        <p>Lights down. Spider-Man swings onto the big screen &mdash; phones away, popcorn ready.</p>
+      </div>
+    </div>
+    <div class="t-item reveal">
+      <div class="t-dot"></div>
+      <div class="t-card">
+        <span class="t-time">9:15 PM</span>
+        <p>Evening walk along the Durban beachfront promenade, then late-night dessert to wrap the night.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GALLERY ================= -->
+<section id="gallery">
+  <div class="section-head reveal">
+    <span class="kicker">Memories &amp; Fan Art</span>
+    <h2>A Little Gallery</h2>
+  </div>
+
+  <div class="gallery reveal">
+    <div class="polaroid">
+      <div class="frame">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="200" fill="#c9c9d1"/>
+          <circle cx="70" cy="80" r="34" fill="#8a8a92"/>
+          <circle cx="140" cy="90" r="30" fill="#a0a0a8"/>
+          <rect x="20" y="130" width="160" height="50" fill="#7a7a85"/>
+          <text x="100" y="160" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="13" fill="#f2efe9">our photo here</text>
+        </svg>
+      </div>
+      <div class="cap">Us, somewhere Bright</div>
+    </div>
+
+    <div class="polaroid">
+      <div class="frame">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="200" fill="#141417"/>
+          <g stroke="#2ad6ff" stroke-width="1" fill="none" opacity="0.6">
+            <path d="M100,100 L100,-10 M100,100 L210,100 M100,100 L100,210 M100,100 L-10,100"/>
+            <path d="M100,100 L175,25 M100,100 L175,175 M100,100 L25,175 M100,100 L25,25"/>
+            <path d="M100,100 Q120,80 140,80 Q120,95 100,100"/>
+            <path d="M100,100 Q135,60 175,60 Q135,85 100,100"/>
+            <path d="M100,100 Q150,40 205,40 Q150,75 100,100"/>
+          </g>
+          <circle cx="100" cy="100" r="5" fill="#e62429"/>
+        </svg>
+      </div>
+      <div class="cap">Web-slinger doodle</div>
+    </div>
+
+    <div class="polaroid">
+      <div class="frame">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="200" fill="#c9c9d1"/>
+          <rect x="30" y="40" width="140" height="100" fill="#8a8a92"/>
+          <path d="M30,140 L75,90 L105,120 L140,70 L170,140 Z" fill="#7a7a85"/>
+          <circle cx="140" cy="65" r="14" fill="#f2efe9"/>
+          <text x="100" y="165" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="13" fill="#33313a">movie night, take two</text>
+        </svg>
+      </div>
+      <div class="cap">Movie night, take two</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THANK YOU ================= -->
+<section id="thanks">
+  <div class="thanks-box reveal">
+    <span class="thanks-kicker">Before Anything Else</span>
+    <p>Princess, thank you for planning this whole night and for covering everything down to the last detail &mdash; the tickets, the snacks, all of it.</p>
+    <p>You didn't have to do all that, but you did, and it means more than a few lines on a webpage can really say.</p>
+    <div class="thanks-sign">With love
+      <span>Can't wait for tonight</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RSVP ================= -->
+<section id="rsvp">
+  <div class="rsvp-box reveal">
+    <h2>Ready For The Multiverse, Princess?</h2>
+    <p>One tap and it's official &mdash; popcorn, poster seats, and Spider-Man await.</p>
+    <div class="rsvp-actions">
+      <button class="btn-yes" id="yesBtn">Yes, absolutely! 🍿</button>
+      <button class="btn-no" id="noBtn">No</button>
+    </div>
+  </div>
+</section>
+
+<canvas id="confetti-canvas"></canvas>
+<div class="confirm-popup" id="confirmPopup">
+  <span class="dot"></span>
+  <span>You're in, Princess! See you at Suncoast, 7:00 PM. 🕸️</span>
+</div>
+
+<footer>
+  <svg class="web-mini" viewBox="0 0 100 100"><g stroke="#2ad6ff" stroke-width="1" fill="none"><path d="M50,50 L50,0 M50,50 L100,50 M50,50 L50,100 M50,50 L0,50 M50,50 L85,15 M50,50 L85,85 M50,50 L15,85 M50,50 L15,15"/><circle cx="50" cy="50" r="20" opacity="0.5"/><circle cx="50" cy="50" r="35" opacity="0.3"/></g></svg>
+  Planned with love, one web at a time.
+</footer>
+
+<script>
+(function(){
+  /* ---------- Countdown to 7:00 PM tomorrow ---------- */
+  function getTarget(){
+    const now = new Date();
+    const t = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 19, 0, 0, 0);
+    return t;
+  }
+  const target = getTarget();
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function tick(){
+    const now = new Date();
+    let diff = target - now;
+    if(diff < 0) diff = 0;
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff / (1000*60*60)) % 24);
+    const mins = Math.floor((diff / (1000*60)) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
+    document.getElementById('cd-days').textContent = pad(days);
+    document.getElementById('cd-hours').textContent = pad(hours);
+    document.getElementById('cd-mins').textContent = pad(mins);
+    document.getElementById('cd-secs').textContent = pad(secs);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---------- Scroll reveal ---------- */
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('is-visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.15});
+  revealEls.forEach(el=>io.observe(el));
+
+  /* ---------- Poster 3D tilt ---------- */
+  const poster = document.getElementById('posterCard');
+  poster.addEventListener('mousemove', (e)=>{
+    const r = poster.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    poster.style.transform = `rotateY(${x*16}deg) rotateX(${-y*16}deg) scale(1.03)`;
+  });
+  poster.addEventListener('mouseleave', ()=>{
+    poster.style.transform = 'rotateY(0) rotateX(0) scale(1)';
+  });
+
+  /* ---------- No button glides away ---------- */
+  const noBtn = document.getElementById('noBtn');
+  const actions = document.querySelector('.rsvp-actions');
+  function glideAway(e){
+    const bounds = actions.getBoundingClientRect();
+    const maxX = bounds.width - noBtn.offsetWidth - 10;
+    const maxY = bounds.height - noBtn.offsetHeight - 10;
+    const newX = Math.max(10, Math.random() * maxX);
+    const newY = Math.max(10, Math.random() * maxY);
+    noBtn.style.position = 'absolute';
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top = newY + 'px';
+  }
+  noBtn.addEventListener('mouseenter', glideAway);
+  noBtn.addEventListener('touchstart', function(e){ e.preventDefault(); glideAway(e); }, {passive:false});
+
+  /* ---------- Yes button: confetti + popup ---------- */
+  const yesBtn = document.getElementById('yesBtn');
+  const popup = document.getElementById('confirmPopup');
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let animId = null;
+
+  function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  const colors = ['#e62429', '#2ad6ff', '#ffffff', '#8f1215'];
+
+  function spawnConfetti(){
+    particles = [];
+    const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 140;
+    for(let i=0;i<count;i++){
+      particles.push({
+        x: Math.random()*canvas.width,
+        y: -20 - Math.random()*canvas.height*0.3,
+        w: 6 + Math.random()*6,
+        h: 8 + Math.random()*10,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        speedY: 2 + Math.random()*3,
+        speedX: -1.5 + Math.random()*3,
+        rot: Math.random()*360,
+        rotSpeed: -6 + Math.random()*12,
+        life: 0
+      });
+    }
+    if(!animId) animLoop();
+  }
+
+  function animLoop(){
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p=>{
+      p.y += p.speedY;
+      p.x += p.speedX;
+      p.rot += p.rotSpeed;
+      p.life++;
+      if(p.y < canvas.height + 20) alive = true;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if(alive){
+      animId = requestAnimationFrame(animLoop);
+    } else {
+      ctx.clearRect(0,0,canvas.width, canvas.height);
+      animId = null;
+    }
+  }
+
+  yesBtn.addEventListener('click', ()=>{
+    spawnConfetti();
+    popup.classList.add('show');
+    clearTimeout(yesBtn._t);
+    yesBtn._t = setTimeout(()=>{ popup.classList.remove('show'); }, 4200);
+  });
+})();
+</script>
+</body>
+</html>
